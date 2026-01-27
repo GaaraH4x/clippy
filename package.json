@@ -1,0 +1,19 @@
+{
+  "name": "clipcash-bot",
+  "version": "1.0.0",
+  "description": "ClipCash Telegram Engagement Bot",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "telegraf": "^4.16.3",
+    "better-sqlite3": "^11.0.0",
+    "node-cron": "^3.0.3",
+    "dotenv": "^16.4.5",
+    "axios": "^1.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
