@@ -312,3 +312,16 @@ bot.launch()
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
+// Keep-alive HTTP server for Render
+const http = require('http');
+const PORT = process.env.PORT || 3000;
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('🚀 Clippy is running!\n');
+});
+
+server.listen(PORT, () => {
+  console.log(`✅ HTTP server listening on port ${PORT}`);
+});
