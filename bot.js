@@ -92,8 +92,14 @@ bot.on('new_chat_members', async (ctx) => {
       
       let user = getUser(userId);
       
-      if (!user) {
-        createUser(userId, username, firstName);
+if (!user) {
+  createUser(userId, username, firstName);
+  
+  // Only send welcome if this is a NEW user (not existing on restart)
+  const justCreated = !getUser(userId).join_date || 
+                      (Date.now() - new Date(getUser(userId).join_date).getTime()) < 10000;
+  
+  if (justCreated) {
         
         const caption = `Welcome to ClipCash, ${firstName}! 🟢
 
@@ -127,17 +133,39 @@ Build with us. Early supporters win. 💪`;
         }
       }
     }
+    }
   } catch (error) {
     console.error('Error handling new member:', error);
   }
-});
+}
+);
+
+// Register commands
+bot.command('what', whatCommand);
+bot.command('earn', earnCommand);
+bot.command('referral', referralCommand);
+bot.command('raiders', raidersCommand);
+bot.command('safe', safeCommand);
+bot.command('tokenomics', tokenomicsCommand);
+bot.command('mypoints', mypointsCommand);
+bot.command('invite', inviteCommand);
+bot.command('leaderboard', leaderboardCommand);
+bot.command('engagement', engagementCommand);
+bot.command('streak', streakCommand);
+
+// Admin commands
+bot.command('stats', statsCommand);
+bot.command('addbonus', addbonusCommand);
+bot.command('broadcast', broadcastCommand);
+bot.command('resetuser', resetuserCommand);
+bot.command('topusers', topusersCommand);
+bot.command('backup', backupCommand);
 
 // Track all messages
 bot.on('text', async (ctx) => {
   try {
-    // Only track group messages
-    if (ctx.chat.type === 'private') return;
-    if (ctx.chat.id.toString() !== GROUP_CHAT_ID) return;
+    // Only track group messages for points
+    if (ctx.chat.type !== 'private' && ctx.chat.id.toString() !== GROUP_CHAT_ID) return;
 
     const userId = ctx.from.id;
     const username = ctx.from.username || '';
@@ -194,27 +222,6 @@ bot.on('text', async (ctx) => {
     console.error('Error tracking message:', error);
   }
 });
-
-// Register commands
-bot.command('what', whatCommand);
-bot.command('earn', earnCommand);
-bot.command('referral', referralCommand);
-bot.command('raiders', raidersCommand);
-bot.command('safe', safeCommand);
-bot.command('tokenomics', tokenomicsCommand);
-bot.command('mypoints', mypointsCommand);
-bot.command('invite', inviteCommand);
-bot.command('leaderboard', leaderboardCommand);
-bot.command('engagement', engagementCommand);
-bot.command('streak', streakCommand);
-
-// Admin commands
-bot.command('stats', statsCommand);
-bot.command('addbonus', addbonusCommand);
-bot.command('broadcast', broadcastCommand);
-bot.command('resetuser', resetuserCommand);
-bot.command('topusers', topusersCommand);
-bot.command('backup', backupCommand);
 
 // Help command
 bot.command('help', (ctx) => {
@@ -305,16 +312,3 @@ bot.launch()
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
-
-// Keep-alive HTTP server for Render
-const http = require('http');
-const PORT = process.env.PORT || 3000;
-
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('🚀 Clippy is running!\n');
-});
-
-server.listen(PORT, () => {
-  console.log(`✅ HTTP server listening on port ${PORT}`);
-});
